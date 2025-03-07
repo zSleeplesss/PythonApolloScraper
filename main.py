@@ -60,15 +60,16 @@ class URL:
         print("Beginning to write values.")
 
         # Check if file of same query already exists, delete it if it does
-        try:
-            os.remove(self.name)
-            print(f"{self.name} has been deleted.")
-        except FileNotFoundError:
-            print(f"{self.name} does not exist.")
-        except PermissionError:
-            print(f"Permission denied: unable to delete {self.name}.")
-        except Exception as e:
-            print(f"An error occurred: {e}")
+        if self.page_index == 1:
+            try:
+                os.remove(self.name)
+                print(f"{self.name} has been deleted.")
+            except FileNotFoundError:
+                print(f"{self.name} does not exist.")
+            except PermissionError:
+                print(f"Permission denied: unable to delete {self.name}.")
+            except Exception as e:
+                print(f"An error occurred: {e}")
 
         self.csv_write()
 
@@ -113,11 +114,14 @@ class URL:
         self.done = False if self.page_num > 0 else True
 
     def csv_write(self):
+        # if ()
         file_write = open(self.name + ".csv", mode="w", newline="")
         file_append = open(self.name + ".csv", mode="a", newline="")
 
         writer = csv.writer(file_write)
         appender = csv.writer(file_append)
+
+        self.done = True if page_index == page_num else False
         if self.page_index == 1:
             writer.writerow([
 
