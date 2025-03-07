@@ -70,6 +70,8 @@ class URL:
                 print(f"Permission denied: unable to delete {self.name}.")
             except Exception as e:
                 print(f"An error occurred: {e}")
+        else:
+            print("No file deletion took place.")
 
         self.csv_write()
 
@@ -114,37 +116,29 @@ class URL:
         self.done = False if self.page_num > 0 else True
 
     def csv_write(self):
-        # if ()
-        file_write = open(self.name + ".csv", mode="w", newline="")
-        file_append = open(self.name + ".csv", mode="a", newline="")
-
-        writer = csv.writer(file_write)
-        appender = csv.writer(file_append)
-
-        self.done = True if page_index == page_num else False
         if self.page_index == 1:
+            file_write = open(self.name + ".csv", mode="w", newline="")
+            writer = csv.writer(file_write)
             writer.writerow([
-
                 "Name",
-
                 "Job title",
-
                 "Company",
                 "Emails",
-
                 "Phone numbers",
-
                 "Actions",
-
                 "Links",
-
                 "Location",
-
                 "Company · Number of employees",
-
                 "Company · Industries",
-
                 "Company · Keywords"])
+            file_write.close()
+
+        file_append = open(self.name + ".csv", mode="a", newline="")
+
+        appender = csv.writer(file_append)
+
+        self.done = True if self.page_index == self.page_num else False
+
 
         # elements = []
         lines = self.page_remainder if self.done else 25
@@ -154,7 +148,7 @@ class URL:
             appender.writerow(str(driver.find_element(By.ID, ("table-row-" + str(i))).text).split("\n"))
             # writer.writerows(elements)
         # print(elements)
-        file_write.close()
+
         file_append.close()
 
 
@@ -171,8 +165,8 @@ emailwait = wait.until(EC.element_to_be_clickable(driver.find_element(by=By.NAME
 passwordwait = wait.until(EC.element_to_be_clickable(driver.find_element(by=By.NAME, value="password")))
 email = driver.find_element(by=By.NAME, value="email")
 password = driver.find_element(by=By.NAME, value="password")
-example = wait.until(EC.element_to_be_clickable(driver.find_element(by=By.CLASS_NAME, value="zp_u1f81")))
-print(example.text)
+# example = wait.until(EC.element_to_be_clickable(driver.find_element(by=By.CLASS_NAME, value="zp_u1f81")))
+# print(example.text)
 
 myemail = input("Enter your email: ")
 mypassword = input("Enter your password: ")
