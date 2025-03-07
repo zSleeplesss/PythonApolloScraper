@@ -33,7 +33,7 @@ chrome_options.add_argument("--disable-blink-features")
 chrome_options.add_argument("--disable-blink-features=AutomationControlled")
 
 service = Service(ChromeDriverManager().install())
-# options = chrome_options
+# Remove service = service if you don't want a headless browser, replace with options = chrome_options
 driver = webdriver.Chrome(service=service)
 driver.get(next_url)
 
@@ -44,7 +44,6 @@ class URL:
 
     def start(self):
         url = self.prefix + str(self.page_index) + self.midfix + self.search_args + self.suffix
-        print(url)
         # Go to page
         driver.get(url)
 
@@ -57,7 +56,7 @@ class URL:
         # wait.until(EC.element_to_be_clickable(driver.find_element(by=By.CLASS_NAME, value="apollo-icon-chevron-arrow-right")))
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, "zp_KtrQp")))
 
-        print("Beginning to write values.")
+        # print("Writing values.")
 
         # Check if file of same query already exists, delete it if it does
         if self.page_index == 1:
@@ -65,23 +64,23 @@ class URL:
                 os.remove(self.name)
                 print(f"{self.name} has been deleted.")
             except FileNotFoundError:
-                print(f"{self.name} does not exist.")
+                print(f"{self.name}.csv does not exist. Making one.")
             except PermissionError:
                 print(f"Permission denied: unable to delete {self.name}.")
             except Exception as e:
                 print(f"An error occurred: {e}")
         else:
-            print("No file deletion took place.")
+            placeholder = 0
 
+        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "zp_KtrQp")))
         self.csv_write()
-
-        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "apollo-icon-chevron-arrow-right")))
-        next_button = driver.find_element(by=By.CLASS_NAME, value="apollo-icon-chevron-arrow-right")
-        next_button.click()
 
         # Call this recursively to simplify
         if not self.done:
             self.page_index += 1
+            wait.until(EC.presence_of_element_located((By.CLASS_NAME, "apollo-icon-chevron-arrow-right")))
+            next_button = driver.find_element(by=By.CLASS_NAME, value="apollo-icon-chevron-arrow-right")
+            next_button.click()
             self.start()
         else:
             return "Done with object: " + self.search_args
@@ -106,11 +105,22 @@ class URL:
         self.search_args = search_args.replace(" ", "%20")
         # self.search_args = self.parse_args(self, search_args)
 
+        # Load initial page to collect query data
+        url = self.prefix + str(self.page_index) + self.midfix + self.search_args + self.suffix
+        driver.get(url)
+
+        # Wait to parse page
+        wait.until(EC.presence_of_element_located((By.CLASS_NAME, "apollo-icon-chevron-arrow-right")))
+
+
         self.query_num = int(
             re.search(r"of (.+)", driver.find_element(by=By.CLASS_NAME, value="zp_xAPpZ").text).group(1))
-        print(self.query_num)
+        print("query num " + str(self.query_num))
         self.page_num = self.query_num // 25
+        print("page num " + str(self.page_num))
         self.page_remainder = self.query_num % 25
+        print("remainder num " + str(self.page_remainder))
+
 
         # Variable to detect when there is only one page
         self.done = False if self.page_num > 0 else True
@@ -134,21 +144,19 @@ class URL:
             file_write.close()
 
         file_append = open(self.name + ".csv", mode="a", newline="")
-
         appender = csv.writer(file_append)
 
-        self.done = True if self.page_index == self.page_num else False
+        self.done = True if self.page_index == self.page_num + 1 else False
 
-
-        # elements = []
         lines = self.page_remainder if self.done else 25
+
+        print("Currently writing lines " + str((self.page_index - 1) * 25) + " through " + str((self.page_index - 1) * 25 + lines))
 
         for i in range(0, lines):
             # elements.append(str(driver.find_element(By.ID, ("table-row-" + str(i))).text).split("\n"))
             appender.writerow(str(driver.find_element(By.ID, ("table-row-" + str(i))).text).split("\n"))
             # writer.writerows(elements)
         # print(elements)
-
         file_append.close()
 
 
@@ -161,8 +169,8 @@ print(title)
 # Make reusable webdriver waiter to shorten code length
 wait = WebDriverWait(driver, 30)
 
-emailwait = wait.until(EC.element_to_be_clickable(driver.find_element(by=By.NAME, value="email")))
-passwordwait = wait.until(EC.element_to_be_clickable(driver.find_element(by=By.NAME, value="password")))
+wait.until(EC.presence_of_element_located((By.NAME, "email")))
+wait.until(EC.presence_of_element_located((By.NAME, "password")))
 email = driver.find_element(by=By.NAME, value="email")
 password = driver.find_element(by=By.NAME, value="password")
 # example = wait.until(EC.element_to_be_clickable(driver.find_element(by=By.CLASS_NAME, value="zp_u1f81")))
@@ -174,12 +182,12 @@ email.send_keys(myemail)
 password.send_keys(mypassword)
 
 form = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "zp_UoIE6")))
-print(driver.find_element(by=By.CLASS_NAME, value="zp_UoIE6").text)
+# print(driver.find_element(by=By.CLASS_NAME, value="zp_UoIE6").text)
 login_wait = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "zp_ZUsLW")))
 
 login_button = driver.find_element(by=By.CLASS_NAME, value="zp_ZUsLW")
 login_button.click()
-print("LOGIN BUTTON CLICKED")
+print("Logging in...")
 
 cookies = driver.get_cookies()
 
@@ -199,17 +207,28 @@ tablewait = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "zp_KtrQp"
 # TABLE ROWS in format id = table-row-0
 # CELL is class = zp_KtrQp
 
-# BofA = URL(driver, "bank of america aml")
-#
-# BofA.start()
 
+# Make array of object constructor parameters
+list = []
 # Make array for all the objects
 batches = []
-# Prompt the user for input
-print("Enter a search query or type \"esc\" to escape: ")
-while not input() == "esc":
-    current = input()
-    batches.append(URL(driver, current))
 
+
+# Prompt the user for input
+current = ""
+print("Enter a search query or type \"esc\" to escape: ")
+while not current == "esc":
+    current = input()
+    list.append(current)
+
+# Get rid of escape at end
+list.pop(len(list) - 1)
+print("Compiling objects...")
+
+# Create objects
+for element in list:
+    batches.append(URL(driver, element))
+
+print("Starting...")
 for batch in batches:
     batch.start()
