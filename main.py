@@ -1,10 +1,7 @@
-import time
 import csv
 import re
 import os
 
-from bs4 import BeautifulSoup
-from selenium.webdriver import Chrome
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -12,8 +9,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
-
-
 # Install these packages if they're not already on your system btw
 
 CHROMEDRIVER_PATH = './chromedriver'
@@ -115,11 +110,11 @@ class URL:
 
         self.query_num = int(
             re.search(r"of (.+)", driver.find_element(by=By.CLASS_NAME, value="zp_xAPpZ").text).group(1))
-        print("query num " + str(self.query_num))
+        # print("query num " + str(self.query_num))
         self.page_num = self.query_num // 25
-        print("page num " + str(self.page_num))
+        # print("page num " + str(self.page_num))
         self.page_remainder = self.query_num % 25
-        print("remainder num " + str(self.page_remainder))
+        # print("remainder num " + str(self.page_remainder))
 
 
         # Variable to detect when there is only one page
