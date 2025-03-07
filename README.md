@@ -18,7 +18,7 @@ Enter a search query or type "esc" to end:
 ... code runs here ...
 
 ```
-4. Check csv files to ensure data was recorded
+5. CSV files should appear in the parent directory. Check csv files to ensure data was recorded
 
 Notes
 - STILL VERY BUGGY!
