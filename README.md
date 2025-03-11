@@ -4,8 +4,8 @@ Web scraper using python selenium and specific name fields to target elements
 Here is how this works:
 1. Be connected to the internet
 2. Make sure all libraries are installed and Google Chrome is available on your computer
-2. Try running file main.py and logging into the terminal with your REAL credentials. If this window fails to properly launch and initialize, try running again
-3. When prompted, enter your search queries followed by "esc" to end. It could look something like this
+3. Try running file main.py and logging into the terminal with your REAL credentials. If this window fails to properly launch and initialize, try running again
+4. When prompted, enter your search queries followed by "esc" to end. It could look something like this
 
 ```
 Enter a search query or type "esc" to end:
@@ -16,7 +16,6 @@ Enter a search query or type "esc" to end:
 > esc
 
 ... code runs here ...
-
 ```
 5. CSV files should appear in the parent directory. Check csv files to ensure data was recorded properly
 

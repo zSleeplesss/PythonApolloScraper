@@ -3,6 +3,7 @@ import re
 import os
 
 from selenium import webdriver
+from selenium.common import TimeoutException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -107,18 +108,25 @@ class URL:
         # Wait to parse page
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, "apollo-icon-chevron-arrow-right")))
 
+        # Query num int
+        # Also remove commas
+        try:
+            self.query_num = int(
+                re.search(r"of (.+)", driver.find_element(by=By.CLASS_NAME, value="zp_xAPpZ").text).group(1)
+            .replace(",", ""))
+            # print("query num " + str(self.query_num))
+            self.page_num = self.query_num // 25
+            # print("page num " + str(self.page_num))
+            self.page_remainder = self.query_num % 25
+            # print("remainder num " + str(self.page_remainder))
 
-        self.query_num = int(
-            re.search(r"of (.+)", driver.find_element(by=By.CLASS_NAME, value="zp_xAPpZ").text).group(1))
-        # print("query num " + str(self.query_num))
-        self.page_num = self.query_num // 25
-        # print("page num " + str(self.page_num))
-        self.page_remainder = self.query_num % 25
-        # print("remainder num " + str(self.page_remainder))
+            # Variable to detect when there is only one page
+            self.done = False if self.page_num > 0 else True
+            self.is_valid = True
+        except TimeoutException:
+            print("Invalid query: " + self.name + ". Skipping and moving to next query.")
+            self.is_valid = False
 
-
-        # Variable to detect when there is only one page
-        self.done = False if self.page_num > 0 else True
 
     def csv_write(self):
         if self.page_index == 1:
@@ -226,4 +234,5 @@ for element in list:
 
 print("Starting...")
 for batch in batches:
-    batch.start()
+    if batch.is_valid:
+        batch.start()
